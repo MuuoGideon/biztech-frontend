@@ -1,97 +1,153 @@
-import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 
-const SalesPage = () => {
-	const [sales, setSales] = useState([]);
-	const [search, setSearch] = useState('');
-	const [loading, setLoading] = useState(false);
+const AddSalePage = () => {
+	const navigate = useNavigate();
+	const [sale, setSale] = useState({
+		itemName: '',
+		quantity: '',
+		pricePerUnit: '',
+		costPerUnit: '',
+		totalPrice: '',
+		profit: '',
+		customerName: '',
+		notes: '',
+	});
 
-	const fetchSales = async (searchTerm = '') => {
+	const handleChange = (e) => {
+		const { name, value } = e.target;
+		let updatedValue = value;
+
+		// For numeric fields, allow empty string
+		if (['quantity', 'pricePerUnit', 'costPerUnit'].includes(name)) {
+			if (value === '') {
+				updatedValue = '';
+			} else {
+				updatedValue = Number(value);
+			}
+		}
+
+		const updatedSale = { ...sale, [name]: updatedValue };
+
+		// Auto-calc totalPrice and profit only if inputs are filled
+		const quantityNum =
+			updatedSale.quantity === '' ? null : Number(updatedSale.quantity);
+		const priceNum =
+			updatedSale.pricePerUnit === '' ? null : Number(updatedSale.pricePerUnit);
+		const costNum =
+			updatedSale.costPerUnit === '' ? null : Number(updatedSale.costPerUnit);
+
+		updatedSale.totalPrice =
+			quantityNum !== null && priceNum !== null ? quantityNum * priceNum : '';
+		updatedSale.profit =
+			quantityNum !== null && priceNum !== null && costNum !== null
+				? (priceNum - costNum) * quantityNum
+				: '';
+
+		setSale(updatedSale);
+	};
+
+	const handleSubmit = async (e) => {
+		e.preventDefault();
+
 		try {
-			setLoading(true);
 			const res = await fetch(
-				`https://sales-tracker-backend-ozb3.onrender.com/api/sales${
-					searchTerm ? `?search=${encodeURIComponent(searchTerm)}` : ''
-				}`
+				'https://sales-tracker-backend-ozb3.onrender.com/api/sales',
+				{
+					method: 'POST',
+					headers: { 'Content-Type': 'application/json' },
+					body: JSON.stringify(sale),
+				}
 			);
-			if (!res.ok) throw new Error('Fetch error');
-			const data = await res.json();
-			setSales(data);
+
+			if (!res.ok) {
+				const errorData = await res.json();
+				throw new Error(errorData.message || 'Failed to add sale');
+			}
+
+			toast.success('Sale added successfully!');
+			navigate('/sales');
 		} catch (err) {
-			toast.error('Failed to fetch sales');
-		} finally {
-			setLoading(false);
+			toast.error(err.message);
 		}
 	};
 
-	// Initial load
-	useEffect(() => {
-		fetchSales();
-	}, []);
-
-	// AJAX Search (debounced)
-	useEffect(() => {
-		const delay = setTimeout(() => {
-			fetchSales(search);
-		}, 400); // 400ms debounce
-
-		return () => clearTimeout(delay);
-	}, [search]);
-
 	return (
-		<div className='bg-[#00061f] rounded-xl p-6 shadow-[0_0_20px_5px_rgba(0,0,0,0.8)]'>
-			{/* SEARCH BAR */}
+		<form className='grid sm:grid-cols-2 gap-4 my-6' onSubmit={handleSubmit}>
 			<input
 				type='text'
-				placeholder='Search by product name or date (YYYY-MM-DD)...'
-				value={search}
-				onChange={(e) => setSearch(e.target.value)}
-				className='w-full mb-6 p-3 rounded-lg bg-[#06001f] border border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500'
+				name='itemName'
+				placeholder='Item Name'
+				value={sale.itemName}
+				onChange={handleChange}
+				className='border rounded px-3 py-2'
+			/>
+			<input
+				type='number'
+				name='quantity'
+				placeholder='Quantity'
+				value={sale.quantity}
+				onChange={handleChange}
+				className='border rounded px-3 py-2'
+			/>
+			<input
+				type='number'
+				name='pricePerUnit'
+				placeholder='Price per Unit'
+				value={sale.pricePerUnit}
+				onChange={handleChange}
+				className='border rounded px-3 py-2'
+			/>
+			<input
+				type='number'
+				name='costPerUnit'
+				placeholder='Cost per Unit'
+				value={sale.costPerUnit}
+				onChange={handleChange}
+				className='border rounded px-3 py-2'
+			/>
+			<input
+				type='number'
+				name='totalPrice'
+				placeholder='Total Price'
+				value={sale.totalPrice}
+				readOnly
+				className='border rounded px-3 py-2 bg-black'
+			/>
+			<input
+				type='number'
+				name='profit'
+				placeholder='Profit'
+				value={sale.profit}
+				readOnly
+				className='border rounded px-3 py-2 bg-black'
+			/>
+			<input
+				type='text'
+				name='customerName'
+				placeholder='Customer Name'
+				value={sale.customerName}
+				onChange={handleChange}
+				className='border rounded px-3 py-2'
+			/>
+			<input
+				type='text'
+				name='notes'
+				placeholder='Notes'
+				value={sale.notes}
+				onChange={handleChange}
+				className='border rounded px-3 py-2'
 			/>
 
-			{loading && <p className='text-gray-400'>Searching...</p>}
-
-			{sales.length === 0 && !loading && (
-				<p className='text-gray-400 text-center'>No sales found</p>
-			)}
-
-			{sales.map((sale) => {
-				let profit = sale.profit;
-				if (profit === undefined && sale.costPerUnit !== undefined) {
-					profit = sale.quantity * (sale.pricePerUnit - sale.costPerUnit);
-				}
-
-				return (
-					<div
-						key={sale._id}
-						className='bg-[#00061f] rounded-xl p-6 m-4 shadow-[0_0_20px_5px_rgba(5,150,105,0.3)]'
-					>
-						<h2 className='font-semibold text-3xl'>{sale.itemName}</h2>
-
-						<p className='text-sm text-gray-600'>
-							Quantity:{' '}
-							<span className='font-medium text-xl'>{sale.quantity}</span>
-						</p>
-
-						{profit !== undefined && (
-							<p className='text-sm my-2 text-green-600'>
-								Profit:{' '}
-								<span className='font-medium text-xl'>Ksh {profit}</span>
-							</p>
-						)}
-
-						<Link
-							to={`/sales/${sale._id}`}
-							className='px-6 py-1 my-5 rounded-lg border border-slate-300 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 transition'
-						>
-							View Details →
-						</Link>
-					</div>
-				);
-			})}
-		</div>
+			<button
+				type='submit'
+				className='col-span-2 bg-green-600 text-white py-2 rounded hover:bg-green-700'
+			>
+				Add Sale
+			</button>
+		</form>
 	);
 };
 
-export default SalesPage;
+export default AddSalePage;
