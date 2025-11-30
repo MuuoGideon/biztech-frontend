@@ -20,7 +20,9 @@ const UpdateSalePage = () => {
 	useEffect(() => {
 		const fetchSale = async () => {
 			try {
-				const res = await fetch(`http://localhost:5000/api/sales/${id}`);
+				const res = await fetch(
+					`https://sales-tracker-backend-ozb3.onrender.com/api/sales/${id}`
+				);
 				if (!res.ok) throw new Error('Failed to load sale');
 				const data = await res.json();
 
@@ -91,20 +93,23 @@ const UpdateSalePage = () => {
 		e.preventDefault();
 
 		try {
-			const res = await fetch(`http://localhost:5000/api/sales/${id}`, {
-				method: 'PUT',
-				headers: {
-					'Content-Type': 'application/json',
-				},
-				body: JSON.stringify({
-					itemName: sale.itemName,
-					quantity: Number(sale.quantity),
-					pricePerUnit: Number(sale.pricePerUnit),
-					costPerUnit: sale.costPerUnit ? Number(sale.costPerUnit) : 0,
-					customerName: sale.customerName,
-					notes: sale.notes,
-				}),
-			});
+			const res = await fetch(
+				`https://sales-tracker-backend-ozb3.onrender.com/api/sales/${id}`,
+				{
+					method: 'PUT',
+					headers: {
+						'Content-Type': 'application/json',
+					},
+					body: JSON.stringify({
+						itemName: sale.itemName,
+						quantity: Number(sale.quantity),
+						pricePerUnit: Number(sale.pricePerUnit),
+						costPerUnit: sale.costPerUnit ? Number(sale.costPerUnit) : 0,
+						customerName: sale.customerName,
+						notes: sale.notes,
+					}),
+				}
+			);
 
 			if (!res.ok) {
 				const errorData = await res.json();

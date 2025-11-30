@@ -11,7 +11,7 @@ const SalesPage = () => {
 		try {
 			setLoading(true);
 			const res = await fetch(
-				`http://localhost:5000/api/sales${
+				`https://sales-tracker-backend-ozb3.onrender.com/api/sales${
 					searchTerm ? `?search=${encodeURIComponent(searchTerm)}` : ''
 				}`
 			);

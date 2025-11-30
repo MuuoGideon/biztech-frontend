@@ -14,7 +14,7 @@ const SalePage = () => {
 
 		try {
 			const res = await fetch(
-				`https://gmern-app-2.onrender.com/api/sales/${id}`,
+				`https://sales-tracker-backend-ozb3.onrender.com/api/sales/${id}`,
 				{
 					method: 'DELETE',
 				}
@@ -133,7 +133,7 @@ const SalePage = () => {
 
 const saleLoader = async ({ params }) => {
 	const res = await fetch(
-		`https://gmern-app-2.onrender.com/api/sales/${params.id}`
+		`https://sales-tracker-backend-ozb3.onrender.com/api/sales/${params.id}`
 	);
 	if (!res.ok) throw new Error('Failed to load sale');
 	return res.json();

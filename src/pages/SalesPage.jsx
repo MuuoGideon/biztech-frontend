@@ -13,7 +13,7 @@ const SalesPage = () => {
 			setLoading(true);
 
 			const res = await fetch(
-				`http://localhost:5000/api/sales?search=${searchTerm}`
+				`https://sales-tracker-backend-ozb3.onrender.com/api/sales?search=${searchTerm}`
 			);
 
 			if (!res.ok) throw new Error('Fetch error');

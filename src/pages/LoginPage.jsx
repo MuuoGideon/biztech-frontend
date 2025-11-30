@@ -16,7 +16,10 @@ const LoginPage = () => {
 		let endpoint = isSignUp ? 'signUp' : 'login';
 
 		await axios
-			.post(`http://localhost:5000/${endpoint}`, { email, password })
+			.post(`https://sales-tracker-backend-ozb3.onrender.com/${endpoint}`, {
+				email,
+				password,
+			})
 			.then((res) => {
 				localStorage.setItem('token', res.data.token);
 				localStorage.setItem('user', JSON.stringify(res.data.user));

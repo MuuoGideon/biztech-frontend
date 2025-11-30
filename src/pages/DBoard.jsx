@@ -24,11 +24,14 @@ export default function DBoard() {
 	useEffect(() => {
 		const fetchSales = async () => {
 			try {
-				const res = await fetch('http://localhost:5000/api/sales', {
-					headers: {
-						Authorization: `Bearer ${localStorage.getItem('token')}`,
-					},
-				});
+				const res = await fetch(
+					'https://sales-tracker-backend-ozb3.onrender.com/api/sales',
+					{
+						headers: {
+							Authorization: `Bearer ${localStorage.getItem('token')}`,
+						},
+					}
+				);
 				const data = await res.json();
 				setSales(data);
 			} catch (err) {

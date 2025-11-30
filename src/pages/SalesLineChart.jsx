@@ -19,7 +19,9 @@ const SalesLineChart = () => {
 	useEffect(() => {
 		const fetchSales = async () => {
 			try {
-				const res = await fetch('https://gmern-app-2.onrender.com/api/sales');
+				const res = await fetch(
+					'https://sales-tracker-backend-ozb3.onrender.com/api/sales'
+				);
 				const data = await res.json();
 				setSales(data);
 			} catch (err) {
