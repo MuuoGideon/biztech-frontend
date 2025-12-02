@@ -48,6 +48,30 @@ const Hero = () => {
 						>
 							Add Sale
 						</Link>
+						<Link
+							to='/products'
+							className='px-6 py-3 rounded-lg border border-slate-300 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 transition'
+						>
+							Products
+						</Link>
+						<Link
+							to='/add-product'
+							className='px-6 py-3 rounded-lg bg-emerald-600 text-white hover:bg-emerald-700 transition'
+						>
+							Add Product
+						</Link>
+						<Link
+							to='/kpi_dashboard'
+							className='px-6 py-3 rounded-lg border border-slate-300 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 transition'
+						>
+							Dashboard 1
+						</Link>
+						<Link
+							to='/dboard'
+							className='px-6 py-3 rounded-lg bg-emerald-600 text-white hover:bg-emerald-700 transition'
+						>
+							Dashboard 2
+						</Link>
 					</div>
 				</div>
 				<div className='relative bg-#000000 rounded-xl p-6 shadow-[0_0_20px_5px_rgba(59,130,246,0.8)]'>
