@@ -1,15 +1,5 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import {
-	LineChart,
-	Line,
-	XAxis,
-	YAxis,
-	CartesianGrid,
-	Tooltip,
-	Legend,
-	ResponsiveContainer,
-} from 'recharts';
 import { toast } from 'react-toastify';
 
 const TotalQuantityDB = () => {
@@ -31,8 +21,10 @@ const TotalQuantityDB = () => {
 		fetchSales();
 	}, []);
 
-	// Aggregate quantities and profit by item
-	const chartData = Object.values(
+	/* ===================================
+	   AGGREGATE QUANTITY + PROFIT BY ITEM
+	=================================== */
+	const tableData = Object.values(
 		sales.reduce((acc, sale) => {
 			const profit =
 				sale.profit ??
@@ -53,87 +45,101 @@ const TotalQuantityDB = () => {
 
 			return acc;
 		}, {})
-	);
+	).sort((a, b) => b.quantity - a.quantity);
+
+	const totalQuantity = tableData.reduce((sum, item) => sum + item.quantity, 0);
+	const totalProfit = tableData.reduce((sum, item) => sum + item.profit, 0);
 
 	return (
-		<>
-			{/* Dashboard Links */}
+		<div className='p-6'>
 			<div className='flex flex-wrap justify-center gap-4 my-6'>
+				{/* Dashboard Links */}
 				<Link
 					to='/kpi_dashboard'
-					className='px-6 py-3 bg-emerald-600 text-white font-semibold rounded-lg shadow hover:bg-emerald-700 hover:shadow-lg transition-all duration-200'
+					className='px-6 py-3 bg-emerald-600 text-white font-semibold rounded-lg hover:bg-emerald-700 transition-all'
 				>
-					Total revenue per Product
+					Revenue per Product
 				</Link>
+
 				<Link
 					to='/DayWeekDashDB'
-					className='px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg shadow hover:bg-blue-700 hover:shadow-lg transition-all duration-200'
+					className='px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-all'
 				>
-					Total Revenue per Day/Week/Month
+					Revenue per Time
 				</Link>
+
 				<Link
-					to='/SalesPieChart'
-					className='px-6 py-3 bg-purple-600 text-white font-semibold rounded-lg shadow hover:bg-purple-700 hover:shadow-lg transition-all duration-200'
+					to='/SalesTable'
+					className='px-6 py-3 bg-purple-600 text-white font-semibold rounded-lg hover:bg-purple-700 transition-all'
 				>
-					Sales Distribution per Item
+					Profit Distribution
 				</Link>
+
 				<Link
 					to='/TotalQuantityDB'
-					className='px-6 py-3 bg-purple-600 text-white font-semibold rounded-lg shadow hover:bg-purple-700 hover:shadow-lg transition-all duration-200'
+					className='px-6 py-3 bg-indigo-600 text-white font-semibold rounded-lg hover:bg-indigo-700 transition-all'
 				>
-					Total Quantity Sold
+					Quantity Sold
 				</Link>
 			</div>
 
-			{/* Chart Container */}
-			<div className='w-full h-96 p-6 bg-[#0f172a] rounded-xl shadow-xl'>
-				<h2 className='text-2xl font-bold mb-4 text-emerald-400'>
-					Sales Quantities & Profit
+			{/* Table Container */}
+			<div className='bg-white dark:bg-slate-900 shadow-md rounded-xl p-6'>
+				<h2 className='text-2xl font-bold mb-4 text-center text-emerald-400'>
+					Sales Quantities & Profit per Product
 				</h2>
-				<ResponsiveContainer width='100%' height='100%'>
-					<LineChart
-						data={chartData}
-						margin={{ top: 20, right: 30, left: 0, bottom: 5 }}
-					>
-						<CartesianGrid stroke='#334155' strokeDasharray='4 4' />
-						<XAxis dataKey='name' stroke='#cbd5e1' tick={{ fontSize: 12 }} />
-						<YAxis stroke='#cbd5e1' tick={{ fontSize: 12 }} />
-						<Tooltip
-							contentStyle={{
-								backgroundColor: '#1e293b',
-								borderRadius: '8px',
-								border: 'none',
-							}}
-							formatter={(value) => `Ksh ${value}`}
-							itemStyle={{ color: '#f1f5f9' }}
-						/>
-						<Legend wrapperStyle={{ color: '#cbd5e1' }} />
 
-						<Line
-							type='monotone'
-							dataKey='quantity'
-							stroke='#3b82f6'
-							strokeWidth={3}
-							dot={{ r: 5, fill: '#3b82f6' }}
-							activeDot={{ r: 7, fill: '#60a5fa' }}
-							name='Quantity'
-							animationDuration={1500}
-						/>
+				<p className='text-center text-gray-500 mb-4'>
+					Total Quantity: <span className='font-semibold'>{totalQuantity}</span>{' '}
+					| Total Profit:{' '}
+					<span className='font-semibold text-green-600'>
+						Ksh {totalProfit.toLocaleString()}
+					</span>
+				</p>
 
-						<Line
-							type='monotone'
-							dataKey='profit'
-							stroke='#10B981'
-							strokeWidth={3}
-							dot={{ r: 5, fill: '#10B981' }}
-							activeDot={{ r: 7, fill: '#4ade80' }}
-							name='Profit'
-							animationDuration={1500}
-						/>
-					</LineChart>
-				</ResponsiveContainer>
+				<div className='overflow-x-auto'>
+					<table className='min-w-full divide-y divide-gray-200 dark:divide-gray-700'>
+						<thead className='bg-gray-100 dark:bg-gray-800'>
+							<tr>
+								<th className='px-4 py-2 text-left text-sm font-medium text-gray-700 dark:text-gray-200'>
+									#
+								</th>
+								<th className='px-4 py-2 text-left text-sm font-medium text-gray-700 dark:text-gray-200'>
+									Item Name
+								</th>
+								<th className='px-4 py-2 text-right text-sm font-medium text-gray-700 dark:text-gray-200'>
+									Quantity
+								</th>
+								<th className='px-4 py-2 text-right text-sm font-medium text-gray-700 dark:text-gray-200'>
+									Profit (Ksh)
+								</th>
+							</tr>
+						</thead>
+						<tbody className='divide-y divide-gray-200 dark:divide-gray-700'>
+							{tableData.map((item, index) => (
+								<tr
+									key={item.name}
+									className='hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors'
+								>
+									<td className='px-4 py-2 text-sm text-gray-600 dark:text-gray-300'>
+										{index + 1}
+									</td>
+									<td className='px-4 py-2 text-sm text-gray-800 dark:text-gray-100'>
+										{item.name}
+									</td>
+									<td className='px-4 py-2 text-sm text-right text-gray-800 dark:text-gray-100'>
+										{item.quantity}
+									</td>
+									<td className='px-4 py-2 text-sm text-right text-green-600 dark:text-green-400'>
+										{item.profit.toLocaleString()}
+									</td>
+								</tr>
+							))}
+						</tbody>
+					</table>
+				</div>
 			</div>
-		</>
+		</div>
 	);
 };
 

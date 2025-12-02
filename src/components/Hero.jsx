@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import logo from '../assets/images/GloTech-logo.png'; // <-- Adjust filename if needed
 
 const Hero = () => {
 	return (
@@ -7,6 +8,18 @@ const Hero = () => {
 			{/* HERO SECTION */}
 			<main className='max-w-7xl mx-auto px-6 py-16 grid md:grid-cols-2 gap-12 items-center'>
 				<div>
+					{/* LOGO + NAME */}
+					<Link to='/' className='flex items-center justify-center'>
+						<img
+							src={logo}
+							alt='GloTech Logo'
+							className='w-40 h-40 object-contain rounded-full shadow-[0_0_60px_rgba(16,185,129,1)]'
+						/>
+					</Link>
+
+					<h2 className='text-4xl md:text-5xl font-extrabold mb-6 text-yellow-400'>
+						GloTech
+					</h2>
 					<h2 className='text-4xl md:text-5xl font-extrabold mb-6'>
 						Track Your Sales {''}
 						<span className='text-emerald-600 dark:text-emerald-400'>

@@ -92,34 +92,34 @@ const DayWeekDashDB = () => {
 
 	return (
 		<div className='max-w-7xl mx-auto px-6 py-16'>
-			{/* Dashboard Links */}
 			<div className='flex flex-wrap justify-center gap-4 my-6'>
+				{/* Dashboard Links */}
 				<Link
 					to='/kpi_dashboard'
-					className='px-6 py-3 bg-emerald-600 text-white font-semibold rounded-lg shadow hover:bg-emerald-700 transition-all'
+					className='px-6 py-3 bg-emerald-600 text-white font-semibold rounded-lg hover:bg-emerald-700 transition-all'
 				>
-					Total revenue per Product
+					Revenue per Product
 				</Link>
 
 				<Link
 					to='/DayWeekDashDB'
-					className='px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg shadow hover:bg-blue-700 transition-all'
+					className='px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-all'
 				>
-					Total Revenue per Day/Week/Month
+					Revenue per Time
 				</Link>
 
 				<Link
-					to='/SalesPieChart'
-					className='px-6 py-3 bg-purple-600 text-white font-semibold rounded-lg shadow hover:bg-purple-700 transition-all'
+					to='/SalesTable'
+					className='px-6 py-3 bg-purple-600 text-white font-semibold rounded-lg hover:bg-purple-700 transition-all'
 				>
-					Sales Distribution per Item
+					Profit Distribution
 				</Link>
 
 				<Link
 					to='/TotalQuantityDB'
-					className='px-6 py-3 bg-purple-600 text-white font-semibold rounded-lg shadow hover:bg-purple-700 transition-all'
+					className='px-6 py-3 bg-indigo-600 text-white font-semibold rounded-lg hover:bg-indigo-700 transition-all'
 				>
-					Total Quantity Sold
+					Quantity Sold
 				</Link>
 			</div>
 

@@ -5,8 +5,9 @@ import { toast } from 'react-toastify';
 const UpdateSalePage = () => {
 	const { id } = useParams();
 	const navigate = useNavigate();
-
+	const [products, setProducts] = useState([]);
 	const [sale, setSale] = useState({
+		productId: '',
 		itemName: '',
 		quantity: '',
 		pricePerUnit: '',
@@ -16,7 +17,26 @@ const UpdateSalePage = () => {
 		customerName: '',
 		notes: '',
 	});
+	const [originalQuantity, setOriginalQuantity] = useState(0);
 
+	// Fetch products
+	useEffect(() => {
+		const fetchProducts = async () => {
+			try {
+				const res = await fetch(
+					'https://sales-tracker-backend-ozb3.onrender.com/api/products'
+				);
+				if (!res.ok) throw new Error('Failed to fetch products');
+				const data = await res.json();
+				setProducts(data);
+			} catch (err) {
+				toast.error(err.message);
+			}
+		};
+		fetchProducts();
+	}, []);
+
+	// Fetch sale data
 	useEffect(() => {
 		const fetchSale = async () => {
 			try {
@@ -36,7 +56,6 @@ const UpdateSalePage = () => {
 				if (quantity && pricePerUnit) {
 					totalPrice = (Number(quantity) * Number(pricePerUnit)).toString();
 				}
-
 				if (quantity && pricePerUnit && costPerUnit) {
 					profit = (
 						(Number(pricePerUnit) - Number(costPerUnit)) *
@@ -44,47 +63,59 @@ const UpdateSalePage = () => {
 					).toString();
 				}
 
+				const product =
+					data.productId ||
+					products.find((p) => p.name === data.itemName)?._id ||
+					'';
+
 				setSale({
 					...data,
+					productId: product,
 					quantity,
 					pricePerUnit,
 					costPerUnit,
 					totalPrice,
 					profit,
 				});
+				setOriginalQuantity(Number(quantity));
 			} catch (err) {
 				toast.error(err.message);
 			}
 		};
-
 		fetchSale();
-	}, [id]);
+	}, [id, products]);
 
 	const handleChange = (e) => {
 		const { name, value } = e.target;
+		let updatedSale = { ...sale, [name]: value };
 
-		const updatedSale = { ...sale, [name]: value };
-
-		const quantity = Number(updatedSale.quantity);
-		const pricePerUnit = Number(updatedSale.pricePerUnit);
-		const costPerUnit = Number(updatedSale.costPerUnit);
-
-		// Only calculate if required fields have values
-		if (updatedSale.quantity && updatedSale.pricePerUnit) {
-			updatedSale.totalPrice = (quantity * pricePerUnit).toString();
-		} else {
-			updatedSale.totalPrice = '';
+		// If product is selected, update price & cost
+		if (name === 'productId') {
+			const selectedProduct = products.find((p) => p._id === value);
+			if (selectedProduct) {
+				updatedSale.itemName = selectedProduct.name;
+				updatedSale.pricePerUnit = selectedProduct.sellingPricePerUnit;
+				updatedSale.costPerUnit = selectedProduct.costPerUnit;
+			} else {
+				updatedSale.itemName = '';
+				updatedSale.pricePerUnit = '';
+				updatedSale.costPerUnit = '';
+			}
 		}
 
-		if (
-			updatedSale.quantity &&
-			updatedSale.pricePerUnit &&
-			updatedSale.costPerUnit
-		) {
-			updatedSale.profit = ((pricePerUnit - costPerUnit) * quantity).toString();
-		} else {
-			updatedSale.profit = '';
-		}
+		const quantityNum =
+			updatedSale.quantity === '' ? null : Number(updatedSale.quantity);
+		const priceNum =
+			updatedSale.pricePerUnit === '' ? null : Number(updatedSale.pricePerUnit);
+		const costNum =
+			updatedSale.costPerUnit === '' ? null : Number(updatedSale.costPerUnit);
+
+		updatedSale.totalPrice =
+			quantityNum !== null && priceNum !== null ? quantityNum * priceNum : '';
+		updatedSale.profit =
+			quantityNum !== null && priceNum !== null && costNum !== null
+				? (priceNum - costNum) * quantityNum
+				: '';
 
 		setSale(updatedSale);
 	};
@@ -92,19 +123,28 @@ const UpdateSalePage = () => {
 	const handleSubmit = async (e) => {
 		e.preventDefault();
 
+		if (!sale.productId) return toast.error('Please select a product');
+		if (!sale.quantity || sale.quantity <= 0)
+			return toast.error('Please enter a valid quantity');
+
+		const selectedProduct = products.find((p) => p._id === sale.productId);
+		const availableStock = selectedProduct.quantity + originalQuantity;
+
+		if (sale.quantity > availableStock) {
+			return toast.error(`Not enough stock. Available: ${availableStock}`);
+		}
+
 		try {
 			const res = await fetch(
 				`https://sales-tracker-backend-ozb3.onrender.com/api/sales/${id}`,
 				{
 					method: 'PUT',
-					headers: {
-						'Content-Type': 'application/json',
-					},
+					headers: { 'Content-Type': 'application/json' },
 					body: JSON.stringify({
-						itemName: sale.itemName,
+						productId: sale.productId,
 						quantity: Number(sale.quantity),
 						pricePerUnit: Number(sale.pricePerUnit),
-						costPerUnit: sale.costPerUnit ? Number(sale.costPerUnit) : 0,
+						costPerUnit: Number(sale.costPerUnit),
 						customerName: sale.customerName,
 						notes: sale.notes,
 					}),
@@ -125,14 +165,28 @@ const UpdateSalePage = () => {
 
 	return (
 		<form className='grid sm:grid-cols-2 gap-4 my-6' onSubmit={handleSubmit}>
-			<input
-				type='text'
-				name='itemName'
-				placeholder='Item Name'
-				value={sale.itemName}
+			<select
+				name='productId'
+				value={sale.productId}
 				onChange={handleChange}
-				className='border rounded px-3 py-2'
-			/>
+				className='border rounded px-3 py-2 bg-gray-700 text-white'
+			>
+				<option value=''>Select Product</option>
+				{products.map((p) => (
+					<option
+						key={p._id}
+						value={p._id}
+						className={
+							p.quantity <= p.lowStockAlert
+								? 'bg-red-600 text-white'
+								: 'bg-gray-700 text-white'
+						}
+					>
+						{p.name} (Stock: {p.quantity})
+						{p.quantity <= p.lowStockAlert ? ' ⚠️ Low Stock' : ''}
+					</option>
+				))}
+			</select>
 
 			<input
 				type='number'
@@ -140,7 +194,7 @@ const UpdateSalePage = () => {
 				placeholder='Quantity'
 				value={sale.quantity}
 				onChange={handleChange}
-				className='border rounded px-3 py-2'
+				className='border rounded px-3 py-2 bg-gray-800 text-white'
 			/>
 
 			<input
@@ -148,8 +202,8 @@ const UpdateSalePage = () => {
 				name='pricePerUnit'
 				placeholder='Price per Unit'
 				value={sale.pricePerUnit}
-				onChange={handleChange}
-				className='border rounded px-3 py-2'
+				readOnly
+				className='border rounded px-3 py-2 bg-gray-800 text-white'
 			/>
 
 			<input
@@ -157,8 +211,8 @@ const UpdateSalePage = () => {
 				name='costPerUnit'
 				placeholder='Cost per Unit'
 				value={sale.costPerUnit}
-				onChange={handleChange}
-				className='border rounded px-3 py-2'
+				readOnly
+				className='border rounded px-3 py-2 bg-gray-800 text-white'
 			/>
 
 			<input
@@ -167,7 +221,7 @@ const UpdateSalePage = () => {
 				placeholder='Total Price'
 				value={sale.totalPrice}
 				readOnly
-				className='border rounded px-3 py-2 bg-black text-white'
+				className='border rounded px-3 py-2 bg-gray-800 text-white'
 			/>
 
 			<input
@@ -176,7 +230,7 @@ const UpdateSalePage = () => {
 				placeholder='Profit'
 				value={sale.profit}
 				readOnly
-				className='border rounded px-3 py-2 bg-black text-white'
+				className='border rounded px-3 py-2 bg-gray-800 text-white'
 			/>
 
 			<input
@@ -185,7 +239,7 @@ const UpdateSalePage = () => {
 				placeholder='Customer Name'
 				value={sale.customerName}
 				onChange={handleChange}
-				className='border rounded px-3 py-2'
+				className='border rounded px-3 py-2 bg-gray-800 text-white'
 			/>
 
 			<input
@@ -194,7 +248,7 @@ const UpdateSalePage = () => {
 				placeholder='Notes'
 				value={sale.notes}
 				onChange={handleChange}
-				className='border rounded px-3 py-2'
+				className='border rounded px-3 py-2 bg-gray-800 text-white'
 			/>
 
 			<button

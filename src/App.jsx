@@ -5,15 +5,19 @@ import SalesPage from './pages/SalesPage';
 import SalePage, { saleLoader } from './pages/SalePage';
 import AddSalePage from './pages/AddSalePage';
 import UpdateSalePage from './pages/UpdateSalePage';
+import AddProductPage from './pages/AddProductPage';
+import ProductsListPage from './pages/ProductsListPage';
+import UpdateProductPage from './pages/UpdateProductPage';
 import LoginPage from './pages/LoginPage';
 import SignUpPage from './pages/SignUpPage';
 import DBboard from './pages/DBoard';
 import ProtectedRoute from './components/ProtectedRoute';
 import NotFoundPage from './pages/NotFoundPage';
 
-import KPIDashboard from './pages/KPIDashboard';
-import SalesPieChart from './pages/SalesPieChart';
+import KPIDashboardTable from './pages/KPIDashboardTable';
+import SalesTable from './pages/SalesTable';
 import DayWeekDashDB from './pages/DayWeekDashDB';
+
 import TotalQuantityDB from './pages/TotalQuantityDB';
 
 import {
@@ -53,6 +57,14 @@ function App() {
 					}
 				/>
 				<Route
+					path='/add-product'
+					element={
+						<ProtectedRoute>
+							<AddProductPage />
+						</ProtectedRoute>
+					}
+				/>
+				<Route
 					path='/sales/:id'
 					element={
 						<ProtectedRoute>
@@ -61,6 +73,23 @@ function App() {
 					}
 					loader={saleLoader}
 				/>
+				<Route
+					path='/products'
+					element={
+						<ProtectedRoute>
+							<ProductsListPage />
+						</ProtectedRoute>
+					}
+					loader={saleLoader}
+				/>
+				<Route
+					path='/update-product/:id'
+					element={
+						<ProtectedRoute>
+							<UpdateProductPage />
+						</ProtectedRoute>
+					}
+				/>
 				<Route path='/login-user' element={<LoginPage />} />
 				<Route path='/sign-up' element={<SignUpPage />} />
 
@@ -68,7 +97,7 @@ function App() {
 					path='/kpi_dashboard'
 					element={
 						<ProtectedRoute>
-							<KPIDashboard />
+							<KPIDashboardTable />
 						</ProtectedRoute>
 					}
 				/>
@@ -84,15 +113,15 @@ function App() {
 					path='/lineChartDB'
 					element={
 						<ProtectedRoute>
-							<KPIDashboard />
+							<KPIDashboardTable />
 						</ProtectedRoute>
 					}
 				/>
 				<Route
-					path='/SalesPieChart'
+					path='/SalesTable'
 					element={
 						<ProtectedRoute>
-							<SalesPieChart />
+							<SalesTable />
 						</ProtectedRoute>
 					}
 				/>
