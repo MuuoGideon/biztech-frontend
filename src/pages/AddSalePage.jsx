@@ -26,7 +26,7 @@ const AddSalePage = () => {
 		try {
 			setLoading(true);
 			const res = await fetch(
-				'https://sales-tracker-backend-ozb3.onrender.com/api/products'
+				'https://biztech-backend-1.onrender.com/api/products'
 			);
 
 			if (!res.ok) throw new Error('Failed to fetch products');
@@ -92,7 +92,7 @@ const AddSalePage = () => {
 
 		try {
 			const res = await fetch(
-				'https://sales-tracker-backend-ozb3.onrender.com/api/sales',
+				'https://biztech-backend-1.onrender.com/api/sales',
 				{
 					method: 'POST',
 					headers: {

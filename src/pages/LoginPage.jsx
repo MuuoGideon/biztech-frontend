@@ -21,7 +21,7 @@ const LoginPage = () => {
 
 		try {
 			const res = await axios.post(
-				`https://sales-tracker-backend-ozb3.onrender.com/${endpoint}`,
+				`https://biztech-backend-1.onrender.com/${endpoint}`,
 				{
 					email,
 					password,

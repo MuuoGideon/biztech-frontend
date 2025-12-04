@@ -22,7 +22,7 @@ const UpdateProductPage = () => {
 		const fetchProduct = async () => {
 			try {
 				const res = await fetch(
-					`https://sales-tracker-backend-ozb3.onrender.com/api/products/${id}`
+					`https://biztech-backend-1.onrender.com/api/products/${id}`
 				);
 				if (!res.ok) throw new Error('Failed to fetch product');
 				const data = await res.json();
@@ -54,7 +54,7 @@ const UpdateProductPage = () => {
 
 		try {
 			const res = await fetch(
-				`https://sales-tracker-backend-ozb3.onrender.com/api/products/${id}`,
+				`https://biztech-backend-1.onrender.com/api/products/${id}`,
 				{
 					method: 'PUT',
 					headers: { 'Content-Type': 'application/json' },

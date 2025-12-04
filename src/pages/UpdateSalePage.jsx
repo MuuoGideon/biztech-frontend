@@ -28,7 +28,7 @@ const UpdateSalePage = () => {
 		const fetchProducts = async () => {
 			try {
 				const res = await fetch(
-					'https://sales-tracker-backend-ozb3.onrender.com/api/products'
+					'https://biztech-backend-1.onrender.com/api/products'
 				);
 				if (!res.ok) throw new Error('Failed to fetch products');
 				const data = await res.json();
@@ -47,7 +47,7 @@ const UpdateSalePage = () => {
 				setLoading(true);
 
 				const res = await fetch(
-					`https://sales-tracker-backend-ozb3.onrender.com/api/sales/${id}`
+					`https://biztech-backend-1.onrender.com/api/sales/${id}`
 				);
 				if (!res.ok) throw new Error('Failed to load sale');
 				const data = await res.json();
@@ -145,7 +145,7 @@ const UpdateSalePage = () => {
 			setSubmitting(true);
 
 			const res = await fetch(
-				`https://sales-tracker-backend-ozb3.onrender.com/api/sales/${id}`,
+				`https://biztech-backend-1.onrender.com/api/sales/${id}`,
 				{
 					method: 'PUT',
 					headers: { 'Content-Type': 'application/json' },

@@ -26,7 +26,7 @@ export default function DBoard() {
 		const fetchSales = async () => {
 			try {
 				const res = await fetch(
-					'https://sales-tracker-backend-ozb3.onrender.com/api/sales',
+					'https://biztech-backend-1.onrender.com/api/sales',
 					{
 						headers: {
 							Authorization: `Bearer ${localStorage.getItem('token')}`,

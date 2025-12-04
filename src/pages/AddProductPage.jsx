@@ -26,7 +26,7 @@ const AddProductPage = () => {
 			setSubmitting(true); // Start spinner
 
 			const res = await fetch(
-				'https://sales-tracker-backend-ozb3.onrender.com/api/products',
+				'https://biztech-backend-1.onrender.com/api/products',
 				{
 					method: 'POST',
 					headers: { 'Content-Type': 'application/json' },

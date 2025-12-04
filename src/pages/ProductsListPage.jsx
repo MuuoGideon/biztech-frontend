@@ -11,7 +11,7 @@ const ProductsListPage = () => {
 		try {
 			setLoading(true);
 			const res = await fetch(
-				'https://sales-tracker-backend-ozb3.onrender.com/api/products'
+				'https://biztech-backend-1.onrender.com/api/products'
 			);
 			if (!res.ok) throw new Error('Failed to fetch products');
 			const data = await res.json();
@@ -33,7 +33,7 @@ const ProductsListPage = () => {
 
 		try {
 			const res = await fetch(
-				`https://sales-tracker-backend-ozb3.onrender.com/api/products/${id}`,
+				`https://biztech-backend-1.onrender.com/api/products/${id}`,
 				{ method: 'DELETE' }
 			);
 

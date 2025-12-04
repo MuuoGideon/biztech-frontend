@@ -10,7 +10,7 @@ const KPIDashboardTable = () => {
 		try {
 			setLoading(true);
 			const res = await fetch(
-				'https://sales-tracker-backend-ozb3.onrender.com/api/sales'
+				'https://biztech-backend-1.onrender.com/api/sales'
 			);
 			if (!res.ok) throw new Error('Failed to fetch sales');
 			const data = await res.json();

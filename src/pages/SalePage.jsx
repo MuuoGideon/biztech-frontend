@@ -16,7 +16,7 @@ const SalePage = () => {
 		setDeleting(true);
 		try {
 			const res = await fetch(
-				`https://sales-tracker-backend-ozb3.onrender.com/api/sales/${id}`,
+				`https://biztech-backend-1.onrender.com/api/sales/${id}`,
 				{ method: 'DELETE' }
 			);
 
@@ -133,7 +133,7 @@ const SalePage = () => {
 
 const saleLoader = async ({ params }) => {
 	const res = await fetch(
-		`https://sales-tracker-backend-ozb3.onrender.com/api/sales/${params.id}`
+		`https://biztech-backend-1.onrender.com/api/sales/${params.id}`
 	);
 	if (!res.ok) throw new Error('Failed to load sale');
 	return res.json();

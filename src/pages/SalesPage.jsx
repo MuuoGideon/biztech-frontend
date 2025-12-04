@@ -23,7 +23,7 @@ const SalesPage = () => {
 	const fetchSales = async () => {
 		try {
 			setLoading(true);
-			let url = `https://sales-tracker-backend-ozb3.onrender.com/api/sales?search=${search}`;
+			let url = `https://biztech-backend-1.onrender.com/api/sales?search=${search}`;
 
 			if (fromDate) url += `&from=${fromDate}`;
 			if (toDate) url += `&to=${toDate}`;
@@ -69,7 +69,7 @@ const SalesPage = () => {
 
 		try {
 			const res = await fetch(
-				`https://sales-tracker-backend-ozb3.onrender.com/api/sales/${id}`,
+				`https://biztech-backend-1.onrender.com/api/sales/${id}`,
 				{
 					method: 'DELETE',
 				}
