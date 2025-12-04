@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import Spinner from '../components/Spinner'; // Make sure you have a Spinner component
 
 const SalesTable = () => {
 	const [sales, setSales] = useState([]);
@@ -25,7 +26,13 @@ const SalesTable = () => {
 		fetchSales();
 	}, []);
 
-	if (loading) return <p className='text-center'>Loading sales data...</p>;
+	if (loading)
+		return (
+			<div className='flex justify-center items-center h-64'>
+				<Spinner className='w-12 h-12 text-blue-600' />
+			</div>
+		);
+
 	if (error) return <p className='text-red-500 text-center'>{error}</p>;
 	if (!sales.length)
 		return <p className='text-center'>No sales data available</p>;

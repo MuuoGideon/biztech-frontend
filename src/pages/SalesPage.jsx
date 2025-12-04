@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
+import Spinner from '../components/Spinner';
 
 const SalesPage = () => {
 	const { id } = useParams();
@@ -55,7 +56,6 @@ const SalesPage = () => {
 	const indexOfLastRow = currentPage * rowsPerPage;
 	const indexOfFirstRow = indexOfLastRow - rowsPerPage;
 	const currentSales = sales.slice(indexOfFirstRow, indexOfLastRow);
-
 	const totalPages = Math.ceil(sales.length / rowsPerPage);
 
 	const changePage = (page) => {
@@ -82,6 +82,37 @@ const SalesPage = () => {
 		} catch (err) {
 			toast.error('Failed to delete sale');
 		}
+	};
+
+	const handleInputChange = (e) => {
+		const { name, value } = e.target;
+		setEditedSale((prev) => ({ ...prev, [name]: value }));
+	};
+
+	const handleSave = async (id) => {
+		try {
+			const res = await fetch(
+				`https://sales-tracker-backend-ozb3.onrender.com/api/sales/${id}`,
+				{
+					method: 'PUT',
+					headers: { 'Content-Type': 'application/json' },
+					body: JSON.stringify(editedSale),
+				}
+			);
+
+			if (!res.ok) throw new Error();
+
+			toast.success('Sale updated');
+			setEditingId(null);
+			fetchSales();
+		} catch (err) {
+			toast.error('Failed to update sale');
+		}
+	};
+
+	const handleCancel = () => {
+		setEditingId(null);
+		setEditedSale({});
 	};
 
 	return (
@@ -129,139 +160,137 @@ const SalesPage = () => {
 				<p>Total: {sales.length}</p>
 			</div>
 
-			{/* TABLE */}
-			<div className='overflow-x-auto'>
-				<table className='w-full border-collapse'>
-					<thead className='bg-emerald-700 text-white'>
-						<tr>
-							<th className='p-3 text-left'>Product</th>
-							<th className='p-3 text-left'>Qty</th>
-							<th className='p-3 text-left'>Price</th>
-							<th className='p-3 text-left'>Profit</th>
-							<th className='p-3 text-left'>Date</th>
-							<th className='p-3 text-left'>Actions</th>
-						</tr>
-					</thead>
+			{/* TABLE OR SPINNER */}
+			{loading ? (
+				<Spinner />
+			) : (
+				<div className='overflow-x-auto'>
+					<table className='w-full border-collapse'>
+						<thead className='bg-emerald-700 text-white'>
+							<tr>
+								<th className='p-3 text-left'>Product</th>
+								<th className='p-3 text-left'>Qty</th>
+								<th className='p-3 text-left'>Price</th>
+								<th className='p-3 text-left'>Profit</th>
+								<th className='p-3 text-left'>Date</th>
+								<th className='p-3 text-left'>Actions</th>
+							</tr>
+						</thead>
 
-					<tbody className='bg-[#00061f] text-gray-200'>
-						{currentSales.map((sale) => {
-							let profit = sale.profit;
+						<tbody className='bg-[#00061f] text-gray-200'>
+							{currentSales.map((sale) => {
+								let profit = sale.profit;
+								if (profit === undefined && sale.costPerUnit !== undefined) {
+									profit =
+										sale.quantity * (sale.pricePerUnit - sale.costPerUnit);
+								}
 
-							if (profit === undefined && sale.costPerUnit !== undefined) {
-								profit = sale.quantity * (sale.pricePerUnit - sale.costPerUnit);
-							}
+								const isEditing = editingId === sale._id;
 
-							const isEditing = editingId === sale._id;
+								return (
+									<tr key={sale._id} className='border-b border-emerald-900'>
+										<td className='p-3'>
+											{isEditing ? (
+												<input
+													name='itemName'
+													value={editedSale.itemName}
+													onChange={handleInputChange}
+													className='bg-[#06001f] border border-emerald-600 p-1 rounded'
+												/>
+											) : (
+												sale.itemName
+											)}
+										</td>
 
-							return (
-								<tr key={sale._id} className='border-b border-emerald-900'>
-									{/* ITEM NAME */}
-									<td className='p-3'>
-										{isEditing ? (
-											<input
-												name='itemName'
-												value={editedSale.itemName}
-												onChange={handleInputChange}
-												className='bg-[#06001f] border border-emerald-600 p-1 rounded'
-											/>
-										) : (
-											sale.itemName
-										)}
-									</td>
+										<td className='p-3'>
+											{isEditing ? (
+												<input
+													type='number'
+													name='quantity'
+													value={editedSale.quantity}
+													onChange={handleInputChange}
+													className='bg-[#06001f] border border-emerald-600 p-1 rounded w-20'
+												/>
+											) : (
+												sale.quantity
+											)}
+										</td>
 
-									{/* QUANTITY */}
-									<td className='p-3'>
-										{isEditing ? (
-											<input
-												type='number'
-												name='quantity'
-												value={editedSale.quantity}
-												onChange={handleInputChange}
-												className='bg-[#06001f] border border-emerald-600 p-1 rounded w-20'
-											/>
-										) : (
-											sale.quantity
-										)}
-									</td>
+										<td className='p-3'>
+											{isEditing ? (
+												<input
+													type='number'
+													name='pricePerUnit'
+													value={editedSale.pricePerUnit}
+													onChange={handleInputChange}
+													className='bg-[#06001f] border border-emerald-600 p-1 rounded w-24'
+												/>
+											) : (
+												`Ksh ${sale.pricePerUnit}`
+											)}
+										</td>
 
-									{/* PRICE */}
-									<td className='p-3'>
-										{isEditing ? (
-											<input
-												type='number'
-												name='pricePerUnit'
-												value={editedSale.pricePerUnit}
-												onChange={handleInputChange}
-												className='bg-[#06001f] border border-emerald-600 p-1 rounded w-24'
-											/>
-										) : (
-											`Ksh ${sale.pricePerUnit}`
-										)}
-									</td>
+										<td
+											className={`p-3 font-bold ${
+												profit > 0 ? 'text-green-500' : 'text-red-500'
+											}`}
+										>
+											{profit !== undefined ? `Ksh ${profit}` : 'N/A'}
+										</td>
 
-									{/* PROFIT */}
-									<td
-										className={`p-3 font-bold ${
-											profit > 0 ? 'text-green-500' : 'text-red-500'
-										}`}
-									>
-										{profit !== undefined ? `Ksh ${profit}` : 'N/A'}
-									</td>
+										<td className='p-3'>
+											{new Date(sale.createdAt).toLocaleDateString()}
+										</td>
 
-									{/* DATE */}
-									<td className='p-3'>
-										{new Date(sale.createdAt).toLocaleDateString()}
-									</td>
+										<td className='p-3 flex gap-2'>
+											{isEditing ? (
+												<>
+													<button
+														onClick={() => handleSave(sale._id)}
+														className='px-3 py-1 bg-emerald-600 rounded text-white'
+													>
+														Save
+													</button>
 
-									{/* ACTIONS */}
-									<td className='p-3 flex gap-2'>
-										{isEditing ? (
-											<>
-												<button
-													onClick={() => handleSave(sale._id)}
-													className='px-3 py-1 bg-emerald-600 rounded text-white'
-												>
-													Save
-												</button>
+													<button
+														onClick={handleCancel}
+														className='px-3 py-1 bg-gray-600 rounded text-white'
+													>
+														Cancel
+													</button>
+												</>
+											) : (
+												<>
+													<Link
+														to={`/sales/update/${sale._id}`}
+														className='px-3 py-1 bg-blue-600 rounded text-white'
+													>
+														Edit
+													</Link>
 
-												<button
-													onClick={handleCancel}
-													className='px-3 py-1 bg-gray-600 rounded text-white'
-												>
-													Cancel
-												</button>
-											</>
-										) : (
-											<>
-												<Link
-													to={`/sales/update/${sale._id}`}
-													className='px-3 py-1 bg-blue-600 rounded text-white'
-												>
-													Edit
-												</Link>
+													<button
+														onClick={() => handleDelete(sale._id)}
+														className='px-3 py-1 bg-red-600 rounded text-white'
+													>
+														Delete
+													</button>
 
-												<button
-													onClick={() => handleDelete(sale._id)}
-													className='px-3 py-1 bg-red-600 rounded text-white'
-												>
-													Delete
-												</button>
-
-												<Link
-													to={`/sales/${sale._id}`}
-													className='px-3 py-1 bg-emerald-700 rounded text-white'
-												>
-													View
-												</Link>
-											</>
-										)}
-									</td>
-								</tr>
-							);
-						})}
-					</tbody>
-				</table>
-			</div>
+													<Link
+														to={`/sales/${sale._id}`}
+														className='px-3 py-1 bg-emerald-700 rounded text-white'
+													>
+														View
+													</Link>
+												</>
+											)}
+										</td>
+									</tr>
+								);
+							})}
+						</tbody>
+					</table>
+				</div>
+			)}
 
 			{/* PAGINATION */}
 			{totalPages > 1 && (

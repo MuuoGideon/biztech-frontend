@@ -11,13 +11,16 @@ import {
 	ResponsiveContainer,
 } from 'recharts';
 import { format, parseISO } from 'date-fns';
+import Spinner from '../components/Spinner';
 
 const DayWeekDashDB = () => {
 	const [sales, setSales] = useState([]);
 	const [groupBy, setGroupBy] = useState('day'); // 'day' | 'week' | 'month'
+	const [loading, setLoading] = useState(true);
 
 	const fetchSales = async () => {
 		try {
+			setLoading(true);
 			const res = await fetch(
 				'https://sales-tracker-backend-ozb3.onrender.com/api/sales'
 			);
@@ -26,6 +29,8 @@ const DayWeekDashDB = () => {
 			setSales(data);
 		} catch (err) {
 			console.error(err);
+		} finally {
+			setLoading(false);
 		}
 	};
 
@@ -45,7 +50,6 @@ const DayWeekDashDB = () => {
 			const date = parseISO(sale.createdAt);
 			let key;
 
-			// Grouping logic
 			switch (groupBy) {
 				case 'day':
 					key = format(date, 'yyyy-MM-dd');
@@ -63,7 +67,6 @@ const DayWeekDashDB = () => {
 					key = format(date, 'yyyy-MM-dd');
 			}
 
-			// Auto-calc profit if not stored
 			const totalRevenue = sale.totalPrice;
 			const autoProfit =
 				sale.sellingPricePerUnit && sale.costPerUnit && sale.quantity
@@ -89,6 +92,14 @@ const DayWeekDashDB = () => {
 	};
 
 	const chartData = groupSales(sales);
+
+	if (loading) {
+		return (
+			<div className='flex justify-center items-center h-96'>
+				<Spinner className='w-16 h-16' />
+			</div>
+		);
+	}
 
 	return (
 		<div className='max-w-7xl mx-auto px-6 py-16'>

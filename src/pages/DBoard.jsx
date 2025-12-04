@@ -11,6 +11,7 @@ import {
 } from 'recharts';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
+import Spinner from '../components/Spinner';
 
 export default function DBoard() {
 	const [sales, setSales] = useState([]);
@@ -44,7 +45,11 @@ export default function DBoard() {
 	}, []);
 
 	if (loading)
-		return <p className='text-white text-center mt-10'>Loading...</p>;
+		return (
+			<div className='flex justify-center items-center h-screen'>
+				<Spinner className='w-16 h-16' />
+			</div>
+		);
 
 	// ==========================
 	// AUTO-CALCULATE PROFIT HERE

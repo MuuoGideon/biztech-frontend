@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 import { Link } from 'react-router-dom';
+import Spinner from '../components/Spinner';
 
 const ProductsListPage = () => {
 	const [products, setProducts] = useState([]);
@@ -15,9 +16,9 @@ const ProductsListPage = () => {
 			if (!res.ok) throw new Error('Failed to fetch products');
 			const data = await res.json();
 			setProducts(data);
-			setLoading(false);
 		} catch (err) {
 			toast.error(err.message);
+		} finally {
 			setLoading(false);
 		}
 	};
@@ -29,17 +30,18 @@ const ProductsListPage = () => {
 	const handleDelete = async (id) => {
 		if (!window.confirm('Are you sure you want to delete this product?'))
 			return;
+
 		try {
 			const res = await fetch(
 				`https://sales-tracker-backend-ozb3.onrender.com/api/products/${id}`,
-				{
-					method: 'DELETE',
-				}
+				{ method: 'DELETE' }
 			);
+
 			if (!res.ok) {
 				const errorData = await res.json();
 				throw new Error(errorData.message || 'Failed to delete product');
 			}
+
 			toast.success('Product deleted successfully');
 			setProducts(products.filter((p) => p._id !== id));
 		} catch (err) {
@@ -60,9 +62,11 @@ const ProductsListPage = () => {
 			</div>
 
 			{loading ? (
-				<p>Loading products...</p>
+				<div className='flex justify-center my-12'>
+					<Spinner className='w-12 h-12' />
+				</div>
 			) : products.length === 0 ? (
-				<p>No products available.</p>
+				<p className='text-center mt-8'>No products available.</p>
 			) : (
 				<div className='overflow-x-auto'>
 					<table className='min-w-full bg-gray-800 border rounded'>

@@ -1,23 +1,23 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useParams, useLoaderData, Link, useNavigate } from 'react-router-dom';
-import Hero from '../components/Hero';
 import CTASection from '../components/CTASection';
 import { toast } from 'react-toastify';
+import Spinner from '../components/Spinner';
 
 const SalePage = () => {
 	const { id } = useParams();
 	const sale = useLoaderData();
 	const navigate = useNavigate();
+	const [deleting, setDeleting] = useState(false);
 
 	const handleDelete = async () => {
 		if (!window.confirm('Are you sure you want to delete this sale?')) return;
 
+		setDeleting(true);
 		try {
 			const res = await fetch(
 				`https://sales-tracker-backend-ozb3.onrender.com/api/sales/${id}`,
-				{
-					method: 'DELETE',
-				}
+				{ method: 'DELETE' }
 			);
 
 			if (!res.ok) {
@@ -29,13 +29,13 @@ const SalePage = () => {
 			navigate('/sales');
 		} catch (err) {
 			alert(err.message);
+		} finally {
+			setDeleting(false);
 		}
 	};
 
 	return (
 		<>
-			<Hero />
-
 			<div className='max-w-4xl mx-auto my-5 text-center mt-6'>
 				<div className='relative bg-#336699 rounded-xl p-6 shadow-[0_0_20px_5px_rgba(59,130,246,0.8)]'>
 					<h1 className='text-4xl font-bold text-emerald-600 mb-4'>
@@ -47,13 +47,11 @@ const SalePage = () => {
 						{sale.quantity}
 					</p>
 
-					{/* Price Per Unit */}
 					<p className='text-lg text-slate-600 dark:text-slate-400 mb-2'>
 						<span className='font-semibold mr-2'>Selling Price/Unit:</span>
 						{`${sale.pricePerUnit} KES`}
 					</p>
 
-					{/* Cost Per Unit (NEW) */}
 					{sale.costPerUnit !== undefined && (
 						<p className='text-lg text-slate-600 dark:text-slate-400 mb-2'>
 							<span className='font-semibold mr-2'>Cost Price/Unit:</span>
@@ -61,7 +59,6 @@ const SalePage = () => {
 						</p>
 					)}
 
-					{/* Total Cost (NEW) */}
 					{sale.totalCost !== undefined && (
 						<p className='text-lg text-slate-600 dark:text-slate-400 mb-2'>
 							<span className='font-semibold mr-2'>Total Cost:</span>
@@ -69,13 +66,11 @@ const SalePage = () => {
 						</p>
 					)}
 
-					{/* Total Selling Price */}
 					<p className='text-lg text-slate-600 dark:text-slate-400 mb-2'>
 						<span className='font-semibold mr-2'>Total Price:</span>
 						{`${sale.totalPrice} KES`}
 					</p>
 
-					{/* PROFIT (NEW) */}
 					{sale.profit !== undefined && (
 						<p className='text-xl font-bold text-green-600 dark:text-green-400 mb-4'>
 							<span className='font-semibold mr-2'>Profit:</span>
@@ -101,26 +96,31 @@ const SalePage = () => {
 						Updated: {new Date(sale.updatedAt).toLocaleString()}
 					</p>
 
-					<div className='space-x-4'>
+					{/* Buttons aligned on same line */}
+					<div className='flex flex-wrap gap-4 justify-center mt-5'>
 						<Link
 							to='/sales'
-							className='px-6 py-1 my-5 rounded-lg border border-slate-300 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 transition'
+							className='px-4 py-2 rounded-lg border border-slate-300 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 transition flex items-center justify-center'
 						>
-							← Back to Sales
+							← Back
 						</Link>
 
 						<Link
 							to={`/sales/update/${id}`}
-							className='px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition shadow'
+							className='px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition shadow flex items-center justify-center'
 						>
 							Update
 						</Link>
 
 						<button
 							onClick={handleDelete}
-							className='px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition'
+							disabled={deleting}
+							className={`px-4 py-2 bg-red-600 text-white rounded transition flex items-center justify-center ${
+								deleting ? 'cursor-not-allowed' : 'hover:bg-red-700'
+							}`}
 						>
-							Delete
+							{deleting && <Spinner className='w-5 h-5 mr-2' />}
+							{deleting ? 'Deleting...' : 'Delete'}
 						</button>
 					</div>
 				</div>

@@ -1,9 +1,11 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { toast } from 'react-toastify';
+import Spinner from '../components/Spinner'; // Ensure you have a Spinner component
 
 const TotalQuantityDB = () => {
 	const [sales, setSales] = useState([]);
+	const [loading, setLoading] = useState(true);
 
 	useEffect(() => {
 		const fetchSales = async () => {
@@ -16,14 +18,23 @@ const TotalQuantityDB = () => {
 				setSales(data);
 			} catch (err) {
 				toast.error(err.message);
+			} finally {
+				setLoading(false);
 			}
 		};
 		fetchSales();
 	}, []);
 
+	if (loading)
+		return (
+			<div className='flex justify-center items-center h-64'>
+				<Spinner className='w-12 h-12 text-blue-600' />
+			</div>
+		);
+
 	/* ===================================
-	   AGGREGATE QUANTITY + PROFIT BY ITEM
-	=================================== */
+     AGGREGATE QUANTITY + PROFIT BY ITEM
+  =================================== */
 	const tableData = Object.values(
 		sales.reduce((acc, sale) => {
 			const profit =

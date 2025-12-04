@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { toast } from 'react-toastify';
+import Spinner from '../components/Spinner';
 
 const LoginPage = () => {
 	const navigate = useNavigate();
@@ -9,12 +10,12 @@ const LoginPage = () => {
 	const [password, setPassword] = useState('');
 	const [isSignUp, setIsSignUp] = useState(false);
 	const [error, setError] = useState('');
-	const [loading, setLoading] = useState(false); // NEW: loading state
+	const [loading, setLoading] = useState(false);
 
 	const handleOnSubmit = async (e) => {
 		e.preventDefault();
-		setError(''); // clear previous errors
-		setLoading(true); // disable button
+		setError('');
+		setLoading(true);
 
 		const endpoint = isSignUp ? 'signUp' : 'login';
 
@@ -36,7 +37,7 @@ const LoginPage = () => {
 		} catch (err) {
 			setError(err.response?.data?.error || 'Something went wrong');
 		} finally {
-			setLoading(false); // enable button again
+			setLoading(false);
 		}
 	};
 
@@ -74,20 +75,23 @@ const LoginPage = () => {
 
 					<button
 						type='submit'
-						disabled={loading} // button disabled while loading
+						disabled={loading}
 						className={`w-full text-white font-semibold py-2 rounded-lg transition ${
 							loading
-								? 'bg-blue-400 cursor-not-allowed'
+								? 'bg-blue-400 cursor-not-allowed flex justify-center items-center gap-2'
 								: 'bg-blue-600 hover:bg-blue-700'
 						}`}
 					>
-						{loading
-							? isSignUp
-								? 'Signing up...'
-								: 'Logging in...'
-							: isSignUp
-							? 'Sign up'
-							: 'Login'}
+						{loading ? (
+							<>
+								<Spinner className='w-5 h-5' />{' '}
+								{isSignUp ? 'Signing up...' : 'Logging in...'}
+							</>
+						) : isSignUp ? (
+							'Sign up'
+						) : (
+							'Login'
+						)}
 					</button>
 
 					{error && <h6 className='text-red-500 mt-2'>{error}</h6>}

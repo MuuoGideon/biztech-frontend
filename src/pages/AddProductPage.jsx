@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
+import Spinner from '../components/Spinner'; // Make sure you have a Spinner component
 
 const AddProductPage = () => {
 	const navigate = useNavigate();
@@ -12,6 +13,8 @@ const AddProductPage = () => {
 		lowStockAlert: 5,
 	});
 
+	const [submitting, setSubmitting] = useState(false); // Added submitting state
+
 	const handleChange = (e) => {
 		const { name, value } = e.target;
 		setProduct({ ...product, [name]: value });
@@ -19,8 +22,9 @@ const AddProductPage = () => {
 
 	const handleSubmit = async (e) => {
 		e.preventDefault();
-
 		try {
+			setSubmitting(true); // Start spinner
+
 			const res = await fetch(
 				'https://sales-tracker-backend-ozb3.onrender.com/api/products',
 				{
@@ -42,9 +46,11 @@ const AddProductPage = () => {
 			}
 
 			toast.success('Product added successfully!');
-			navigate('/products'); // assuming you have a products list page
+			navigate('/products');
 		} catch (err) {
 			toast.error(err.message);
+		} finally {
+			setSubmitting(false); // Stop spinner
 		}
 	};
 
@@ -97,9 +103,13 @@ const AddProductPage = () => {
 
 			<button
 				type='submit'
-				className='col-span-2 bg-blue-600 text-white py-2 rounded hover:bg-blue-700'
+				disabled={submitting}
+				className={`col-span-2 bg-blue-600 text-white py-2 rounded flex items-center justify-center transition ${
+					submitting ? 'cursor-not-allowed bg-blue-400' : 'hover:bg-blue-700'
+				}`}
 			>
-				Add Product
+				{submitting && <Spinner className='w-5 h-5 mr-2' />}
+				{submitting ? 'Adding...' : 'Add Product'}
 			</button>
 		</form>
 	);

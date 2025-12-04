@@ -1,11 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import Spinner from '../components/Spinner';
 
 const KPIDashboardTable = () => {
 	const [sales, setSales] = useState([]);
+	const [loading, setLoading] = useState(true);
 
 	const fetchSales = async () => {
 		try {
+			setLoading(true);
 			const res = await fetch(
 				'https://sales-tracker-backend-ozb3.onrender.com/api/sales'
 			);
@@ -14,6 +17,8 @@ const KPIDashboardTable = () => {
 			setSales(data);
 		} catch (err) {
 			console.error(err);
+		} finally {
+			setLoading(false);
 		}
 	};
 
@@ -22,6 +27,13 @@ const KPIDashboardTable = () => {
 		const interval = setInterval(fetchSales, 5000);
 		return () => clearInterval(interval);
 	}, []);
+
+	if (loading)
+		return (
+			<div className='flex justify-center items-center h-screen'>
+				<Spinner className='w-16 h-16' />
+			</div>
+		);
 
 	// Auto-calculate profit
 	const salesWithProfit = sales.map((s) => {

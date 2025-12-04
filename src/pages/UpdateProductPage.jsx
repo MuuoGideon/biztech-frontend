@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
+import Spinner from '../components/Spinner'; // Ensure you have a Spinner component
 
 const UpdateProductPage = () => {
 	const { id } = useParams();
@@ -13,6 +14,9 @@ const UpdateProductPage = () => {
 		sellingPricePerUnit: '',
 		lowStockAlert: 5,
 	});
+
+	const [loading, setLoading] = useState(true); // Loading for fetching product
+	const [submitting, setSubmitting] = useState(false); // Loading for form submission
 
 	useEffect(() => {
 		const fetchProduct = async () => {
@@ -31,6 +35,8 @@ const UpdateProductPage = () => {
 				});
 			} catch (err) {
 				toast.error(err.message);
+			} finally {
+				setLoading(false);
 			}
 		};
 
@@ -44,6 +50,8 @@ const UpdateProductPage = () => {
 
 	const handleSubmit = async (e) => {
 		e.preventDefault();
+		setSubmitting(true);
+
 		try {
 			const res = await fetch(
 				`https://sales-tracker-backend-ozb3.onrender.com/api/products/${id}`,
@@ -69,8 +77,17 @@ const UpdateProductPage = () => {
 			navigate('/products');
 		} catch (err) {
 			toast.error(err.message);
+		} finally {
+			setSubmitting(false);
 		}
 	};
+
+	if (loading)
+		return (
+			<div className='flex justify-center items-center h-64'>
+				<Spinner className='w-12 h-12 text-blue-600' />
+			</div>
+		);
 
 	return (
 		<form className='grid sm:grid-cols-2 gap-4 my-6' onSubmit={handleSubmit}>
@@ -120,9 +137,15 @@ const UpdateProductPage = () => {
 			/>
 			<button
 				type='submit'
-				className='col-span-2 bg-yellow-500 text-white py-2 rounded hover:bg-yellow-600'
+				disabled={submitting}
+				className={`col-span-2 bg-yellow-500 text-white py-2 rounded flex items-center justify-center transition ${
+					submitting
+						? 'cursor-not-allowed bg-yellow-400'
+						: 'hover:bg-yellow-600'
+				}`}
 			>
-				Update Product
+				{submitting && <Spinner className='w-5 h-5 mr-2' />}
+				{submitting ? 'Updating...' : 'Update Product'}
 			</button>
 		</form>
 	);
